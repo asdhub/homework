@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"  
+    xmlns:h="http://java.sun.com/jsf/html"  
+    xmlns:f="http://java.sun.com/jsf/core" 
+    xmlns:ui="http://java.sun.com/jsf/facelets" 
+    xmlns:p="http://primefaces.org/ui">
+<h:head>
+<meta charset="UTF-8" />
+<title>HomeWork</title>
+</h:head>
+<h:body>
+
+<p:messages id="messages" showDetail="true" autoUpdate="true" closable="true" />
+<p:tabView>
+<p:tab title="護理站管理">
+<h:form>
+<p:menubar>
+	<p:menuitem value="新增" update="sitePanel" process="@this" actionListener="#{manageConsole.siteAction('ADD')}"></p:menuitem>
+	<p:menuitem value="修改" update="sitePanel" process="@this" actionListener="#{manageConsole.siteAction('MODIFY')}"></p:menuitem>
+	<p:menuitem value="刪除" update="sitePanel" process="@this" actionListener="#{manageConsole.siteAction('DEL')}"></p:menuitem>
+	<p:menuitem value="查詢" update="sitePanel" process="@this" actionListener="#{manageConsole.siteAction('SEARCH')}"></p:menuitem>
+</p:menubar>
+<p:panel id="sitePanel">
+
+<p:selectOneMenu id="selSite" value="#{manageConsole.site}" converter="#{siteConvert}" required="true"
+ rendered="#{manageConsole.siteType.equals('DEL') or manageConsole.siteType.equals('MODIFY') or manageConsole.siteType.equals('SEARCH')}"> 	
+	<f:selectItems value="#{manageConsole.selectSite}" itemLabel="#{s.name}" itemValue="#{s}" var="s"></f:selectItems>
+	 <p:ajax event="change" process="@this" update="areaReflash"  />
+</p:selectOneMenu>
+
+<p:outputPanel id="areaReflash">
+<ui:remove>
+	<p:outputLabel for="s01" rendered="#{manageConsole.siteType.equals('DEL') or manageConsole.siteType.equals('SEARCH')}">編號:</p:outputLabel>
+	<h:outputText id="s01" value="#{manageConsole.site.id}" 
+	rendered="#{manageConsole.siteType.equals('DEL') or manageConsole.siteType.equals('SEARCH')}"></h:outputText>
+	
+	<p:outputLabel for="s02" rendered="#{manageConsole.siteType.equals('MODIFY')}">編號:</p:outputLabel>
+	<p:inputText id="s02" value="#{manageConsole.site.id}" required="true" 
+	 rendered="#{manageConsole.siteType.equals('MODIFY')}"></p:inputText>
+</ui:remove>
+	 
+	<p:outputLabel for="s03" rendered="#{manageConsole.siteType.equals('ADD') or manageConsole.siteType.equals('MODIFY')}">名稱:</p:outputLabel> 
+	<p:inputText id="s03" value="#{manageConsole.site.name}"  required="true"
+	 rendered="#{manageConsole.siteType.equals('ADD') or manageConsole.siteType.equals('MODIFY')}"></p:inputText>
+	 
+	 <p:outputLabel for="s04" rendered="#{manageConsole.siteType.equals('DEL') or manageConsole.siteType.equals('SEARCH')}">名稱:</p:outputLabel>
+	 <h:outputText id="s04" value="#{manageConsole.site.name}"
+	  rendered="#{manageConsole.siteType.equals('DEL') or manageConsole.siteType.equals('SEARCH')}"></h:outputText>
+	 
+	  <p:dataList value="#{manageConsole.findNurses()}" var="n" type="ordered" rendered="#{manageConsole.siteType.equals('SEARCH')}">
+        <f:facet name="header">
+           <h:outputText value="護士名單"></h:outputText>
+        </f:facet>
+        <h:outputText value="#{n.name}"></h:outputText>
+        <h:outputText value="(#{n.number})"></h:outputText>
+      </p:dataList>
+</p:outputPanel>	 
+	 <f:facet name="footer">
+	 	<p:commandButton id="addSiteBut" value="新增" actionListener="#{manageConsole.siteAdd}" 
+	 	rendered="#{manageConsole.siteType.equals('ADD')}" process="sitePanel" update="sitePanel"></p:commandButton>
+	 	<p:commandButton id="modifySiteBut" value="修改" actionListener="#{manageConsole.siteModify}"
+	 	 rendered="#{manageConsole.siteType.equals('MODIFY')}" process="sitePanel" update="sitePanel"></p:commandButton>
+	 	<p:commandButton id="delSiteBut" value="刪除" actionListener="#{manageConsole.siteDel}"
+	 	 rendered="#{manageConsole.siteType.equals('DEL')}" process="sitePanel" update="sitePanel"></p:commandButton>
+	 </f:facet>
+</p:panel>
+<p:blockUI block="sitePanel" trigger="addSiteBut,modifySiteBut,delSiteBut" />
+</h:form>
+</p:tab>
+<p:tab title="人員管理">
+<h:form>
+<p:menubar>
+	<p:menuitem value="新增" update="nursePanel" process="@this" actionListener="#{manageConsole.nurseAction('ADD')}"></p:menuitem>
+	<p:menuitem value="修改" update="nursePanel" process="@this" actionListener="#{manageConsole.nurseAction('MODIFY')}"></p:menuitem>
+	<p:menuitem value="刪除" update="nursePanel" process="@this" actionListener="#{manageConsole.nurseAction('DEL')}"></p:menuitem>
+	<p:menuitem value="查詢" update="nursePanel" process="@this" actionListener="#{manageConsole.nurseAction('SEARCH')}"></p:menuitem>
+</p:menubar>
+<p:panel id="nursePanel" >
+
+<p:outputLabel for="n00" 
+rendered="#{manageConsole.nurseType.equals('DEL') or manageConsole.nurseType.equals('SEARCH') or manageConsole.nurseType.equals('MODIFY')}">查詢:</p:outputLabel>
+<p:autoComplete id="n00" value="#{manageConsole.searchStr}" completeMethod="#{manageConsole.complete}" forceSelection="true"
+ var="s" itemValue="#{s}"
+rendered="#{manageConsole.nurseType.equals('DEL') or manageConsole.nurseType.equals('SEARCH') or manageConsole.nurseType.equals('MODIFY')}">
+	<p:ajax event="itemSelect" process="@this" update="nurseReflash" listener="#{manageConsole.changeNurse}"></p:ajax>	
+	<p:column>
+		<h:outputText value="#{s.split(':')[0]} - #{s.split(':')[1]}" rendered="#{s.length() gt 0}"></h:outputText>
+		<h:outputText value="" rendered="#{s.length() eq 0}"></h:outputText>
+	</p:column>	
+</p:autoComplete>
+
+<p:outputPanel id="nurseReflash">
+<p:outputLabel for="n01" rendered="#{manageConsole.nurseType.equals('ADD') or manageConsole.nurseType.equals('MODIFY')}">員工編號:</p:outputLabel>
+<p:inputText id="n01" value="#{manageConsole.nurse.number}" required="true"
+ rendered="#{manageConsole.nurseType.equals('ADD') or manageConsole.nurseType.equals('MODIFY')}"></p:inputText>
+
+<p:outputLabel for="n02" rendered="#{manageConsole.nurseType.equals('ADD') or manageConsole.nurseType.equals('MODIFY')}">名稱:</p:outputLabel>
+<p:inputText id="n02" value="#{manageConsole.nurse.name}" required="true"
+ rendered="#{manageConsole.nurseType.equals('ADD') or manageConsole.nurseType.equals('MODIFY')}"></p:inputText>
+
+<p:outputLabel for="n03" rendered="#{manageConsole.nurseType.equals('DEL') or manageConsole.nurseType.equals('SEARCH')}">員工編號:</p:outputLabel>
+<h:outputText id="n03" value="#{manageConsole.nurse.number}"
+ rendered="#{manageConsole.nurseType.equals('DEL') or manageConsole.nurseType.equals('SEARCH')}"></h:outputText>
+ 
+<p:outputLabel for="n04" rendered="#{manageConsole.nurseType.equals('DEL') or manageConsole.nurseType.equals('SEARCH')}">名稱:</p:outputLabel>
+<h:outputText id="n04" value="#{manageConsole.nurse.name}"
+ rendered="#{manageConsole.nurseType.equals('DEL') or manageConsole.nurseType.equals('SEARCH')}"></h:outputText>
+
+<p:pickList value="#{manageConsole.pickSites}" var="s" itemLabel="#{s.name}" itemValue="#{s}"
+ converter="#{siteConvert}" rendered="#{manageConsole.nurseType.equals('ADD') or manageConsole.nurseType.equals('MODIFY')}">
+	<f:facet name="sourceCaption">護理站選項</f:facet>
+    <f:facet name="targetCaption">已分配</f:facet>
+<ui:remove>    
+    <p:ajax event="transfer" listener="#{manageConsole.handleTransfer}" />
+</ui:remove>    
+</p:pickList>
+
+	  <p:dataList value="#{manageConsole.findSites()}" var="s" type="ordered" rendered="#{manageConsole.nurseType.equals('SEARCH')}">
+        <f:facet name="header">
+           <h:outputText value="護理站歸屬列表"></h:outputText>
+        </f:facet>
+        <h:outputText value="#{s.name}"></h:outputText>        
+      </p:dataList>
+
+</p:outputPanel>
+<f:facet name="footer">
+	<p:commandButton id="addNurseBut" value="新增" actionListener="#{manageConsole.nurseAdd}" 
+	 	rendered="#{manageConsole.nurseType.equals('ADD')}" process="nursePanel" update="nursePanel"></p:commandButton>
+	<p:commandButton id="modifyNurseBut" value="修改" actionListener="#{manageConsole.nurseModify}"
+	 	 rendered="#{manageConsole.nurseType.equals('MODIFY')}" process="nursePanel" update="nursePanel"></p:commandButton>
+	<p:commandButton id="delNurseBut" value="刪除" actionListener="#{manageConsole.nurseDel}"
+	 	 rendered="#{manageConsole.nurseType.equals('DEL')}" process="nursePanel" update="nursePanel"></p:commandButton>
+</f:facet>
+</p:panel>
+<p:blockUI block="nursePanel" trigger="addNurseBut,modifyNurseBut,delNurseBut" />
+</h:form>
+</p:tab>
+</p:tabView>
+
+</h:body>
+</html>

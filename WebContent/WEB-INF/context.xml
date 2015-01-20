@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Context>
+<Resource name="HomeWorkDS"
+            auth="Container"
+            type="javax.sql.DataSource"
+            username="hw"
+            password="hw123123123"
+            driverClassName="org.mariadb.jdbc.Driver"
+            url="jdbc:mysql://localhost/homework"
+            maxTotal="8"
+            maxIdle="4"/>
+</Context>
